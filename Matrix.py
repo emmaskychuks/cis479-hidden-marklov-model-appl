@@ -45,15 +45,20 @@ class Matrix(object):
     def createTransitionMatrix(self, heading):
 
         #index each state tuple to a matrix(8X11) with  transition prob
-        transitionMatrix = dict()
+        transitionMatrix = np.empty(shape=(1, 88))
         for x in range(0, self.height):
             for y in range(0, self.width):
                 stateMatrix = np.array([[round(0.000, 2)] * self.width] * self.height)
                 if self.isNotAnObstacle((x, y)):
                     self.assignTransitionProb(heading, (x, y), stateMatrix)
-                    transitionMatrix[(x, y)] = stateMatrix
+                    stateMatrix = stateMatrix.flatten()
+                    transitionMatrix = np.vstack((transitionMatrix, stateMatrix))
                 else:
-                    transitionMatrix[(x, y)] = stateMatrix
+                    stateMatrix = stateMatrix.flatten()
+                    transitionMatrix = np.vstack((transitionMatrix, stateMatrix))
+
+        # Delete first row (irrelevant)
+        transitionMatrix = np.delete(transitionMatrix, 0, 0)
 
         return transitionMatrix
 
@@ -132,6 +137,18 @@ class Matrix(object):
                 return True
             else:
                 return False
+
+    def representAsPerecentage(self, matrix, switch):
+        if switch == True:
+            for x in range(0, self.height):
+                for y in range(0, self.width):
+                    matrix[x][y] = matrix[x][y] * 100.00
+        
+        else:
+             for x in range(0, self.height):
+                for y in range(0, self.width):
+                    matrix[x][y] = matrix[x][y] / 100.00
+
 
     def printMatrix(self, matrix):
          for row in matrix:

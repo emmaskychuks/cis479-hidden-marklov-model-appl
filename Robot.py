@@ -3,11 +3,14 @@ class Robot:
         self.hmm = hmmModel
 
     def senseLocation(self, perception):
-        w, n, e, s = perception
 
         self.hmm.sensorUpdate(perception)
         self.hmm.printGrid()
     
+    def moveRobot(self, heading):
+
+        self.hmm.motionUpdate(heading)
+        self.hmm.printGrid()
     
 
     

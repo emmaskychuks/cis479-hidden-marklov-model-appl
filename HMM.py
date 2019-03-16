@@ -15,12 +15,13 @@ class HMM(object):
         self.northTransitionMatrix = self.matrix.createTransitionMatrix("NORTH")
         self.eastTransitionMatrix = self.matrix.createTransitionMatrix("EAST")
         self.sensorMatrix = self.matrix.createPriorMatrix()
-        self.probabilityMatrix = self.matrix.createPriorMatrix()
-        
+        self.probabilityMatrix = self.matrix.createPriorMatrix()       
 
     def sensorUpdate(self, perception):
         w, n, e, s = perception
         tempMatrix = self.sensorMatrix
+
+        self.matrix.representAsPerecentage(self.sensorMatrix,False)
 
         for x in range(0, 8):
             for y in range(0, 11):
@@ -29,25 +30,32 @@ class HMM(object):
                 eastProb = self.assignSensedProb((x, y + 1), e)
                 southProb = self.assignSensedProb((x + 1, y), s)
 
-                prior = (self.sensorMatrix[x][y] / 100.00)
+                prior = self.sensorMatrix[x][y]
                 probability = (westProb * northProb * eastProb * southProb) * prior
                 tempMatrix[x][y] = probability
 
-        normalizer = np.sum(tempMatrix)
-
-        for x in range(0, 8):
-            for y in range(0, 11):
-                tempMatrix[x][y] = (tempMatrix[x][y] / normalizer) * 100.00
-
+        tempMatrix /= np.sum(tempMatrix)
+        self.matrix.representAsPerecentage(tempMatrix, True)
         
         #Debug
-        totalProbability = np.sum(tempMatrix)
+        #totalProbability = np.sum(tempMatrix)
 
         self.sensorMatrix = tempMatrix
 
-    def motionUpdate(self):
-        pass
+    def motionUpdate(self, heading):
+        tempMatrix = self.sensorMatrix
 
+        self.matrix.representAsPerecentage(tempMatrix, False)
+
+        tempMatrix = tempMatrix.flatten()
+        if heading == "NORTH":
+            tempMatrix = tempMatrix.dot(self.northTransitionMatrix)
+        elif heading == "EAST":
+            tempMatrix = tempMatrix.dot(self.eastTransitionMatrix)
+
+        tempMatrix = tempMatrix.reshape(8, 11)
+        self.matrix.representAsPerecentage(tempMatrix, True)
+        self.sensorMatrix = tempMatrix
 
 
     def assignSensedProb(self, state, evidence):
@@ -73,9 +81,8 @@ class HMM(object):
     def printGrid(self):
         print("Sensor Matrix")
         self.matrix.printMatrix(self.sensorMatrix)
-""" 
-        print(" ")
-        for key in self.eastTransitionMatrix.keys():
-            for matrix in self.eastTransitionMatrix[key]:
-                print(matrix)
-                print(" ") """
+
+    """  print(" ")
+        for row in tMatrix:
+            print(row)
+            print(" ") """
