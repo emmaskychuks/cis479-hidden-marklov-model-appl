@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Matrix(object):
 
     def __init__(self, height, width):
@@ -37,14 +38,17 @@ class Matrix(object):
 
         self.assignObstacleProb(priorMatrix)
 
+        print("Matrix with Prior Probabilities")
         for row in priorMatrix:
             print(row)
+            print(" ")
+        print(" ")
 
         return priorMatrix
 
     def createTransitionMatrix(self, heading):
 
-        #index each state tuple to a matrix(8X11) with  transition prob
+        
         transitionMatrix = np.empty(shape=(1, 88))
         for x in range(0, self.height):
             for y in range(0, self.width):
@@ -59,6 +63,7 @@ class Matrix(object):
 
         # Delete first row (irrelevant)
         transitionMatrix = np.delete(transitionMatrix, 0, 0)
+
 
         return transitionMatrix
 
@@ -149,8 +154,32 @@ class Matrix(object):
                 for y in range(0, self.width):
                     matrix[x][y] = matrix[x][y] / 100.00
 
+    def matrixFormatter(self, matrix):
+        formattedMatrix = []
+
+        for x in range(0, self.height):
+            row = []
+            for y in range(0, self.width):
+                val = matrix[x][y]
+                val = round(val, 2)  
+                val = '{:.2f}'.format(round(val, 2))
+                val = str(val) 
+                val = val[0:4]
+                row.append(val)
+            formattedMatrix.append(row)
+
+              
+        return formattedMatrix
 
     def printMatrix(self, matrix):
-         for row in matrix:
-            print(row)
+        
+        formattedMatrix = self.matrixFormatter(matrix)
+
+        for row in formattedMatrix:
+            print([state for state in row])
             print(" ")
+        print(" ")
+
+        """ for row in matrix:
+        print(row)
+        print(" ") """
